@@ -71,6 +71,8 @@ const (
 	ErrClusterAlreadyDeleted              = "cli.cluster_already_deleted"
 	ErrFailedClusterStatus                = "cli.failed_cluster_status"
 	ErrClusterDoesNotExist                = "cli.cluster_does_not_exist"
+	ErrAWSCredentialsRequired             = "cli.aws_credentials_required"
+	ErrClusterConfigOrPromptsRequired     = "cli.cluster_config_or_prompts_required"
 )
 
 func ErrorInvalidProvider(providerStr string) error {
@@ -285,5 +287,19 @@ func ErrorFailedClusterStatus(status clusterstate.Status, clusterName string, re
 	return errors.WithStack(&errors.Error{
 		Kind:    ErrFailedClusterStatus,
 		Message: fmt.Sprintf("cluster \"%s\" in %s encountered an unexpected status %s, please try to delete the cluster with `cortex cluster down` or delete the cloudformation stacks manually in your AWS console %s", clusterName, region, string(status), getCloudFormationURL(clusterName, region)),
+	})
+}
+
+func ErrorAWSCredentialsRequired() error {
+	return errors.WithStack(&errors.Error{
+		Kind:    ErrAWSCredentialsRequired,
+		Message: "AWS credentials are required; please set them in your cluster configuration file (if you're using one), your environment variables (i.e. AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY), or your AWS CLI (i.e. via `aws configure`)",
+	})
+}
+
+func ErrorClusterConfigOrPromptsRequired() error {
+	return errors.WithStack(&errors.Error{
+		Kind:    ErrClusterConfigOrPromptsRequired,
+		Message: "this command requires either a cluster configuration file (e.g. `--config=cluster.yaml`) or prompts (i.e. omit the `--yes` flag)",
 	})
 }
